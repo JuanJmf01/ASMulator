@@ -1,9 +1,11 @@
-from trueTables.And import And
+class NotGate:
+  
+    @staticmethod
+    def perform_not(input_bit):
+        if input_bit not in ['0', '1']:
+            raise ValueError("Input must be a binary digit (0 or 1)")
 
-class Not:
-    def __init__(self):
-        self.and_gate = And() 
-
-    def execute(self, input1):
-        return self.and_gate.execute(~input1, 0xFFFF)  
-
+        if input_bit == '0':
+            return '1'
+        else:
+            return '0'

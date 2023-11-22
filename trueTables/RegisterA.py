@@ -1,9 +1,12 @@
 class RegisterA:
     def __init__(self):
-        self.value = 0  # Inicializamos el registro A en 0 al inicio
-    
+        self.value = '0000000000000000'
+
     def set_value(self, new_value):
-        self.value = new_value  # Actualiza el valor del registro A
-    
+        if len(new_value) != 16:
+            raise ValueError("Value must be a 16-bit binary number RegisterA")
+        
+        self.value = new_value
+
     def get_value(self):
-        return self.value  # Obtiene el valor actual del registro A
+        return self.value

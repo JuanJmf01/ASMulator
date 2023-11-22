@@ -1,118 +1,91 @@
-from trueTables.Or import Or
-from trueTables.And import And
-from trueTables.Not import Not
-from trueTables.Mux16 import Mux16
-from trueTables.XOR import XOR
+from trueTables.And import AndGate
+from trueTables.Or import OrGate
+from trueTables.XOR import XorGate
+from trueTables.Not import NotGate
 from trueTables.RegisterA import RegisterA
 from trueTables.RegisterD import RegisterD
 
 class ALU:
     def __init__(self):
-        self.register_a = RegisterA()
-        self.register_d = RegisterD()
-        self.not_gate = Not()
-        self.or_gate = Or()
-        self.and_gate = And()
-        self.xor_gate = XOR()
-        #self.mux = Mux16()
+        self.register_A = RegisterA()
+        self.register_D = RegisterD()
 
-
-
-    def execute(self, input_a, input_d, instruction):
-        self.register_a.set_value(input_a)
-        self.register_d.set_value(input_d)
-
-        # Realizar operaciones segun la instruccion
-        if instruction == "0":  # Operacion A=D
-            self.register_a.set_value(self.register_d.get_value())
-        elif instruction == "1":  # Operacion D=A
-            self.register_d.set_value(self.register_a.get_value())
-        elif instruction == "-1":  # Operacion D=!A
-            self.not_gate.execute(self.register_a.get_value())
-            self.register_d.set_value(self.not_gate.execute(self.register_a.get_value()))
-        elif instruction == "D":  # Operacion D=-A
-            self.register_d.set_value(-self.register_a.get_value())
-        elif instruction == "A+1":  # Operacion D=A+1
-            self.increment_a()
-        elif instruction == "D+1":  # Operacion D=D+1
-            self.increment_d()
-        elif instruction == "A-1":  # Operacion D=A-1
-            self.decrement_a()
-        elif instruction == "D-1":  # Operacion D=D-1
-            self.decrement_d()
-        elif instruction == "A+D":  # Operacion D=A+D
-            for i in range(self.register_a.get_value()):
-                self.increment_d()
-        elif instruction == "A-D":  # Operacion D=A-D
-            for i in range(self.register_a.get_value()):
-                self.decrement_d()
-        elif instruction == "D-A":  # Operacion D=D-A
-            self.register_d.set_value(self.register_d.get_value() - self.register_a.get_value())
-        elif instruction == "A&D":  # Operacion D=A&D
-            self.register_d.set_value(self.and_gate.execute(self.register_a.get_value(), self.register_d.get_value()))
-        elif instruction == "A|D":  # Operacion D=A|D
-            self.register_d.set_value(self.or_gate.execute(self.register_a.get_value(), self.register_d.get_value()))
+    def perform_operation(self, operation, input1, input2):
+        if operation == "ADD":
+            self.register_D.set_value(self.add(input1, input2))
+        elif operation == "SUB":
+            self.register_D.set_value(self.subtract(input1, input2))
+        elif operation == "AND":
+            self.register_D.set_value(self.perform_and(input1, input2))
+        elif operation == "OR":
+            self.register_D.set_value(self.perform_or(input1, input2))
+        elif operation == "XOR":
+            self.register_D.set_value(self.perform_xor(input1, input2))
         else:
-            raise ValueError("Instruccion no reconocida")
+            raise ValueError("Unsupported operation")
         
-        return self.register_d.get_value()
+    def add(self, input1, input2):
+        if len(input1) != 16 or len(input2) != 16:
+            raise ValueError("Inputs must be 16-bit binary numbers")
+
+        sum_result = ""
+        carry = '0'
+
+        for i in range(15, -1, -1):
+            bit_input1 = input1[i]
+            bit_input2 = input2[i]
+
+            # Realizar la suma bit a bit utilizando compuertas logicas XOR y AND para el acarreo
+            bit_sum = XorGate.perform_xor(bit_input1, bit_input2)
+            current_bit_result = XorGate.perform_xor(bit_sum, carry)
+
+            # Calcular el acarreo para el siguiente bit
+            carry = OrGate.perform_or(
+                AndGate.perform_and(bit_sum, carry),
+                AndGate.perform_and(bit_input1, bit_input2)
+            )
+
+            # Construir el resultado bit a bit
+            sum_result = current_bit_result + sum_result
+
+        return sum_result
 
 
-    
-    def increment_a(self):
-        new_value = self.increment(self.register_a.get_value())
-        self.register_d.set_value(new_value)  
-        #print(self.register_d.get_value())
 
+    def subtract(self, input1, input2):
+        if len(input1) != 16 or len(input2) != 16:
+            raise ValueError("Inputs must be 16-bit binary numbers")
 
-    def increment_d(self):
-        new_value = self.increment(self.register_d.get_value())
-        self.register_d.set_value(new_value)
+        # Invertir el segundo numero (utilizando la operacion NOT)
+        inverted_input2 = ""
+        not_gate = NotGate()
+        for bit in input2:
+            inverted_input2 += not_gate.perform_not(bit)
 
-    def decrement_a(self):
-        new_value = self.decrement(self.register_a.get_value())
-        self.register_d.set_value(new_value)
+        # Sumar el primer numero con la representacion invertida del segundo numero
+        # Esto es igual a restar, ya que la suma de input1 + (-input2) es lo mismo que input1 - input2
+        temp_result = self.add(input1, inverted_input2)
 
-    def decrement_d(self):
-        new_value = self.decrement(self.register_d.get_value())
-        self.register_d.set_value(new_value)
+        # Agregar 1 al resultado para tener en cuenta el bit de signo
+        one = '0000000000000001'
+        final_result = self.add(temp_result, one)
 
+        return final_result[-16:]
 
+    def perform_and(self, input1, input2):
+        # Implementacion de la operacion AND utilizando la compuerta logica AndGate
+        and_gate = AndGate()
+        and_gate.set_inputs(input1, input2)
+        return and_gate.perform_and()
 
-    def increment(self, value):
-        # Convertimos el valor de D a una lista de bits
-        d_bits = [(value >> i) & 1 for i in range(16)]
-        
-        # Implementacion de la logica booleana para sumar 1 a D
-        carry = 1  # Inicializamos el acarreo en 1
-        
-        for i in range(16):
-            # Sumador completo de un bit
-            temp_sum = self.xor_gate.execute(d_bits[i], carry)
-            carry = d_bits[i] & carry  # Generacion de acarreo AND
-            d_bits[i] = temp_sum  # Asignacion del resultado a la posicion del bit
-        
-        # Convertimos la lista de bits nuevamente a un valor entero
-        new_value = sum(d_bits[i] << i for i in range(16))
-        
-        return new_value
-        
-        
-    def decrement(self, value):
-        # Convertimos el valor de D a una lista de bits
-        d_bits = [(value >> i) & 1 for i in range(16)]
-        
-        # Implementacion de la logica booleana para restar 1 a D
-        carry = 1  # Inicializamos el acarreo en 1
-        
-        for i in range(16):
-            # Restador de un bit
-            temp_diff = self.xor_gate.execute(d_bits[i], carry)
-            borrow = self.and_gate.execute(self.not_gate.execute(d_bits[i]), carry)
-            carry = borrow  # Generacion de acarreo (o prastamo en una resta)
-            d_bits[i] = temp_diff  # Asignacion del resultado a la posicion del bit
-        
-        # Convertimos la lista de bits nuevamente a un valor entero
-        new_value = sum(d_bits[i] << i for i in range(16))
-        
-        return new_value
+    def perform_or(self, input1, input2):
+        # Implementacion de la operacion OR utilizando la compuerta logica OrGate
+        or_gate = OrGate()
+        or_gate.set_inputs(input1, input2)
+        return or_gate.perform_or()
+
+    def perform_xor(self, input1, input2):
+        # Implementacion de la operacion XOR utilizando la compuerta logica XorGate
+        xor_gate = XorGate()
+        xor_gate.set_inputs(input1, input2)
+        return xor_gate.perform_xor()
