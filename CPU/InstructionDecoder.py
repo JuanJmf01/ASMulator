@@ -1,43 +1,72 @@
 from CPU.ALU import ALU
-from CPU.RAM import RAM
+from RAM.RAM import RAM
+
 
 class InstructionDecoder:
     def __init__(self):
+        """
+        Initializes the InstructionDecoder with an ALU and RAM.
+
+        Returns:
+        None
+        """
         self.operation = None
         self.alu = ALU()
         self.ram = RAM(16)
 
     def decode(self, instruction, registerA, registerD):
-        # Aquí analizamos la instruccion y establecemos la operación a realizar en la CPU
+        """
+        Decodes the given instruction and performs the corresponding operation on the CPU.
 
-        if instruction == 'ADD':
+        Args:
+        - instruction (str): The instruction to be decoded and executed.
+        - registerA (RegisterA): The register containing operand A.
+        - registerD (RegisterD): The register containing operand D.
+
+        Returns:
+        None
+        """
+        if instruction == "ADD":
             self.alu.perform_operation(instruction, registerA, registerD)
-        elif instruction == 'SUB':
+        elif instruction == "SUB":
             self.alu.perform_operation(instruction, registerA, registerD)
-        elif instruction == 'LOAD_D':
-            # Le mostramos al usuario loas valores de memoria actuales
-            print("Tus valores guardados en: \n")
+        elif instruction == "LOAD_D":
+            # Display current memory values to the user
+            print("Your values stored in memory: \n")
             self.ram.show_memory_status()
 
-            direccion = input("Ingresa una direccion desde 0 a 15 para guardar el valor del registro D: ")
-            self.ram.write(int(direccion), registerD.get_value())
-            registerD.set_value('0000000000000000')
-        elif instruction == 'READ_D':
-            # Le mostramos al usuario loas valores de memoria actuales
-            print("Tus valores guardados en: \n")
+            address = input(
+                "Enter an address from 0 to 15 to store the value of register D: "
+            )
+            self.ram.write(int(address), registerD.get_value())
+            registerD.set_value("0000000000000000")
+        elif instruction == "READ_D":
+            # Display current memory values to the user
+            print("Your values stored in memory: \n")
             self.ram.show_memory_status()
-            direccion = input("Ingresa una direccion desde 0 a 15 para guardar en registro D una valor de memoria: ")
+            address = input(
+                "Enter an address from 0 to 15 to read a value from memory into register D: "
+            )
 
-            # Asigamos el valor obtenido de memoria al registro D
-            newValueD = self.ram.read(int(direccion))
-            registerD.set_value(newValueD)
-            
-
-
+            # Assign the value obtained from memory to register D
+            new_value_D = self.ram.read(int(address))
+            registerD.set_value(new_value_D)
+        elif instruction == "NEGATE_D":
+            self.alu.perform_operation(instruction, registerA, registerD)
+        elif instruction == "NEGATE_A":
+            self.alu.perform_operation(instruction, registerA, registerD)
+        elif instruction == "PLUSONE_D":
+            self.alu.perform_operation(instruction, registerA, registerD)
         else:
-            print("Entrada invalida. Asegurese de ingresar dos numeros binarios de 16 bits y la operación (ADD/SUB).")
-
-
+            print(
+                "Invalid input. Make sure to enter a valid operation (ADD/SUB/LOAD_D/READ_D/NEGATE_D/NEGATE_A/PLUSONE_D)."
+            )
 
     def get_operation(self):
+        """
+        Returns the last decoded operation.
+
+        Returns:
+        str: The last decoded operation.
+        """
         return self.operation

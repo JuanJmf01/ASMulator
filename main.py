@@ -3,64 +3,85 @@ from CPU.RegisterA import RegisterA
 from CPU.RegisterD import RegisterD
 from CPU.InstructionDecoder import InstructionDecoder
 
+
 def main():
+    """
+    Main function for the CPU simulator.
+
+    Initializes the ALU, RegisterA, RegisterD, and InstructionDecoder.
+    Allows the user to perform various operations using the CPU simulator.
+
+    Returns:
+    None
+    """
     alu = ALU()
     registerA = RegisterA()
     registerD = RegisterD()
-    intructionDecoder = InstructionDecoder()
-
+    instructionDecoder = InstructionDecoder()
 
     while True:
-        print("Nuevo D: ", registerD.get_value())
-        actualRegisterD = registerD.get_value()
-        print("Ingrese dos números binarios de 16 bits y la operación ('exit' para salir): \n")
+        print("Current D: ", registerD.get_value())
+        print("Current A: ", registerA.get_value())
+        currentRegisterD = registerD.get_value()
+        print("Enter two 16-bit binary numbers and the operation ('exit' to quit): \n")
 
+        # User defines the operation to be performed
+        print("Operations: ")
+        print("     Addition:                       'ADD'")
+        print("     Subtraction:                    'SUB'")
+        print("     Store D value in RAM:           'LOAD_D'")
+        print("     Assign D a value from RAM:      'READ_D'")
+        print("     Negate D:                       'NEGATE_D'")
+        print("     Negate A:                       'NEGATE_A'")
+        print("     Add 1 to D:                     'PLUSONE_D' \n")
 
+        operation = input("Operation: ")
 
-        # El usuario define la operacion a realizar
-        print("Operaciones: ")
-        print("     Suma:                            'ADD'")
-        print("     Resta:                           'SUB'")
-        print("     Guardar valor de D en RAM:       'LOAD_D'")
-        print("     Asignar a D un valor de la RAM:  'READ_D' \n")
-
-        operation = input("Operación: ")
-
-        if operation.upper() not in ['ADD', 'SUB', 'LOAD_D', 'READ_D']:
-            print("Entrada invalida. Asegurese de ingresar las operaciones validas.")
+        if operation.upper() not in [
+            "ADD",
+            "SUB",
+            "LOAD_D",
+            "READ_D",
+            "NEGATE_D",
+            "NEGATE_A",
+            "PLUSONE_D",
+        ]:
+            print("Invalid input. Make sure to enter valid operations.")
             continue
         else:
-            if  operation != 'LOAD_D' and operation != 'READ_D':
-                # Guardamos los valores ingresados por el usuario en los registros A y D respectivamente
-                registerA.set_value(input("Valor para registro A (16 bits): "))
+            if (
+                operation != "LOAD_D"
+                and operation != "READ_D"
+                and operation != "NEGATE_D"
+                and operation != "NEGATE_A"
+                and operation != "PLUSONE_D"
+            ):
+                # Save user-input values in registers A and D respectively
+                registerA.set_value(input("Value for register A (16 bits): "))
 
-                if actualRegisterD == '0000000000000000': 
-                    registerD.set_value(input("Valor para registro D (16 bits): "))
+                if currentRegisterD == "0000000000000000":
+                    registerD.set_value(input("Value for register D (16 bits): "))
 
-
-            # Accedemos a los valores ingresados por el usuario en los registros A y D respectivamente
+            # Access user-input values in registers A and D respectively
             input1 = registerA.get_value()
             input2 = registerD.get_value()
 
             if len(input1) != 16 or len(input2) != 16:
-                print("Entrada invalida. Asegurese de ingresar dos numeros binarios de 16 bits.")
+                print("Invalid input. Make sure to enter two 16-bit binary numbers.")
 
-            
-
-
-
-            if input1.lower() == 'exit' or input2.lower() == 'exit' or operation.lower() == 'exit':
+            if (
+                input1.lower() == "exit"
+                or input2.lower() == "exit"
+                or operation.lower() == "exit"
+            ):
                 break
 
-        
-            intructionDecoder.decode(operation, registerA, registerD)
+            instructionDecoder.decode(operation, registerA, registerD)
 
-        
-
-
-
-        resultado = registerD.get_value()
-        print(f"Resultado de {operation.upper()} entre {input1} y {input2}: {resultado} \n")
+        result = registerD.get_value()
+        print(
+            f"Result of {operation.upper()} between {input1} and {input2}: {result} \n"
+        )
 
 
 if __name__ == "__main__":
