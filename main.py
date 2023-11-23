@@ -9,15 +9,13 @@ def main():
     registerD = RegisterD()
     intructionDecoder = InstructionDecoder()
 
-    band = True
-
 
     while True:
         print("Nuevo D: ", registerD.get_value())
+        actualRegisterD = registerD.get_value()
+        print("Ingrese dos números binarios de 16 bits y la operación ('exit' para salir): \n")
 
-        # Accedemos a los valores ingresados por el usuario en los registros A y D respectivamente
-        input1 = registerA.get_value()
-        input2 = registerD.get_value()
+
 
         # El usuario define la operacion a realizar
         print("Operaciones: ")
@@ -28,32 +26,41 @@ def main():
 
         operation = input("Operación: ")
 
-        if input1.lower() == 'exit' or input2.lower() == 'exit' or operation.lower() == 'exit':
-            break
-
-        if len(input1) != 16 or len(input2) != 16 or operation.upper() not in ['ADD', 'SUB', 'LOAD_D', 'READ_D']:
-            print("Entrada invalida. Asegurese de ingresar dos numeros binarios de 16 bits y la operación (ADD/SUB).")
+        if operation.upper() not in ['ADD', 'SUB', 'LOAD_D', 'READ_D']:
+            print("Entrada invalida. Asegurese de ingresar las operaciones validas.")
             continue
         else:
-            intructionDecoder.decode(operation, registerA, registerD)
+            if  operation != 'LOAD_D' and operation != 'READ_D':
+                # Guardamos los valores ingresados por el usuario en los registros A y D respectivamente
+                registerA.set_value(input("Valor para registro A (16 bits): "))
 
+                if actualRegisterD == '0000000000000000': 
+                    registerD.set_value(input("Valor para registro D (16 bits): "))
+
+
+            # Accedemos a los valores ingresados por el usuario en los registros A y D respectivamente
+            input1 = registerA.get_value()
+            input2 = registerD.get_value()
+
+            if len(input1) != 16 or len(input2) != 16:
+                print("Entrada invalida. Asegurese de ingresar dos numeros binarios de 16 bits.")
+
+            
+
+
+
+            if input1.lower() == 'exit' or input2.lower() == 'exit' or operation.lower() == 'exit':
+                break
 
         
-        print("Ingrese dos números binarios de 16 bits y la operación ('exit' para salir): \n")
-
-        # Guardamos los valores ingresados por el usuario en los registros A y D respectivamente
-        registerA.set_value(input("Número 1 (16 bits): "))
-
-        if band: 
-            registerD.set_value(input("Número 2 (16 bits): "))
-            band = False
+            intructionDecoder.decode(operation, registerA, registerD)
 
         
 
 
 
         resultado = registerD.get_value()
-        print(f"Resultado de {operation.upper()} entre {input1} y {input2}: {resultado}")
+        print(f"Resultado de {operation.upper()} entre {input1} y {input2}: {resultado} \n")
 
 
 if __name__ == "__main__":

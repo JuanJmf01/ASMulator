@@ -14,12 +14,6 @@ class ALU:
             registerD.set_value(self.add(input1, input2))
         elif operation == "SUB":
             registerD.set_value(self.subtract(input2, input1))
-        elif operation == "AND":
-            registerD.set_value(self.perform_and(input1, input2))
-        elif operation == "OR":
-            registerD.set_value(self.perform_or(input1, input2))
-        elif operation == "XOR":
-            registerD.set_value(self.perform_xor(input1, input2))
         else:
             raise ValueError("Unsupported operation")
         
@@ -72,23 +66,3 @@ class ALU:
 
         return final_result[-16:]
     
-
-
-
-    def perform_and(self, input1, input2):
-        # Implementacion de la operacion AND utilizando la compuerta logica AndGate
-        and_gate = AndGate()
-        and_gate.set_inputs(input1, input2)
-        return and_gate.perform_and()
-
-    def perform_or(self, input1, input2):
-        # Implementacion de la operacion OR utilizando la compuerta logica OrGate
-        or_gate = OrGate()
-        or_gate.set_inputs(input1, input2)
-        return or_gate.perform_or()
-
-    def perform_xor(self, input1, input2):
-        # Implementacion de la operacion XOR utilizando la compuerta logica XorGate
-        xor_gate = XorGate()
-        xor_gate.set_inputs(input1, input2)
-        return xor_gate.perform_xor()
