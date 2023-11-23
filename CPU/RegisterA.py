@@ -1,10 +1,11 @@
-class RegisterD:
+class RegisterA:
+
     def __init__(self):
         self.value = '0000000000000000'
 
     def set_value(self, new_value):
         if len(new_value) != 16:
-            raise ValueError("Value must be a 16-bit binary number RegisterD")
+            raise ValueError("Value must be a 16-bit binary number RegisterA")
         
         self.value = new_value
 

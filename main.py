@@ -1,31 +1,60 @@
-from trueTables.ALU import ALU
+from CPU.ALU import ALU
+from CPU.RegisterA import RegisterA
+from CPU.RegisterD import RegisterD
+from CPU.InstructionDecoder import InstructionDecoder
 
 def main():
-    # Crear una instancia de la ALU
     alu = ALU()
+    registerA = RegisterA()
+    registerD = RegisterD()
+    intructionDecoder = InstructionDecoder()
 
-    # Establecer dos numeros binarios de 16 bits para sumar
-    num1 = "0000000000001111"
-    num2 = "0000000000000011"
+    band = True
 
-    try:
-        # Establecer los valores en los registros A y D
-        alu.register_A.set_value(num1)
-        alu.register_D.set_value(num2)
 
-        # Realizar la suma utilizando la ALU
-        alu.perform_operation("SUB", alu.register_A.get_value(), alu.register_D.get_value())
+    while True:
+        print("Nuevo D: ", registerD.get_value())
 
-        # Obtener el resultado de la suma desde el registro D
-        resultado = alu.register_D.get_value()
+        # Accedemos a los valores ingresados por el usuario en los registros A y D respectivamente
+        input1 = registerA.get_value()
+        input2 = registerD.get_value()
 
-        # Mostrar los numeros y el resultado de la suma
-        print(f"Numero 1: {num1}")
-        print(f"Numero 2: {num2}")
-        print(f"Resultado: {resultado}")
+        # El usuario define la operacion a realizar
+        print("Operaciones: ")
+        print("     Suma:                            'ADD'")
+        print("     Resta:                           'SUB'")
+        print("     Guardar valor de D en RAM:       'LOAD_D'")
+        print("     Asignar a D un valor de la RAM:  'READ_D' \n")
 
-    except ValueError as e:
-        print(f"Error: {e}")
+        operation = input("Operación: ")
+
+        if input1.lower() == 'exit' or input2.lower() == 'exit' or operation.lower() == 'exit':
+            break
+
+        if len(input1) != 16 or len(input2) != 16 or operation.upper() not in ['ADD', 'SUB', 'LOAD_D', 'READ_D']:
+            print("Entrada invalida. Asegurese de ingresar dos numeros binarios de 16 bits y la operación (ADD/SUB).")
+            continue
+        else:
+            intructionDecoder.decode(operation, registerA, registerD)
+
+
+        
+        print("Ingrese dos números binarios de 16 bits y la operación ('exit' para salir): \n")
+
+        # Guardamos los valores ingresados por el usuario en los registros A y D respectivamente
+        registerA.set_value(input("Número 1 (16 bits): "))
+
+        if band: 
+            registerD.set_value(input("Número 2 (16 bits): "))
+            band = False
+
+        
+
+
+
+        resultado = registerD.get_value()
+        print(f"Resultado de {operation.upper()} entre {input1} y {input2}: {resultado}")
+
 
 if __name__ == "__main__":
     main()

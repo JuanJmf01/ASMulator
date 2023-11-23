@@ -2,25 +2,24 @@ from trueTables.And import AndGate
 from trueTables.Or import OrGate
 from trueTables.XOR import XorGate
 from trueTables.Not import NotGate
-from trueTables.RegisterA import RegisterA
-from trueTables.RegisterD import RegisterD
 
 class ALU:
-    def __init__(self):
-        self.register_A = RegisterA()
-        self.register_D = RegisterD()
 
-    def perform_operation(self, operation, input1, input2):
+    def perform_operation(self, operation, registerA, registerD):
+
+        input1 = registerA.get_value()
+        input2 = registerD.get_value()
+
         if operation == "ADD":
-            self.register_D.set_value(self.add(input1, input2))
+            registerD.set_value(self.add(input1, input2))
         elif operation == "SUB":
-            self.register_D.set_value(self.subtract(input1, input2))
+            registerD.set_value(self.subtract(input2, input1))
         elif operation == "AND":
-            self.register_D.set_value(self.perform_and(input1, input2))
+            registerD.set_value(self.perform_and(input1, input2))
         elif operation == "OR":
-            self.register_D.set_value(self.perform_or(input1, input2))
+            registerD.set_value(self.perform_or(input1, input2))
         elif operation == "XOR":
-            self.register_D.set_value(self.perform_xor(input1, input2))
+            registerD.set_value(self.perform_xor(input1, input2))
         else:
             raise ValueError("Unsupported operation")
         
@@ -47,6 +46,7 @@ class ALU:
 
             # Construir el resultado bit a bit
             sum_result = current_bit_result + sum_result
+            
 
         return sum_result
 
@@ -71,6 +71,9 @@ class ALU:
         final_result = self.add(temp_result, one)
 
         return final_result[-16:]
+    
+
+
 
     def perform_and(self, input1, input2):
         # Implementacion de la operacion AND utilizando la compuerta logica AndGate
